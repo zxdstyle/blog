@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="开场白 经常听说某某某专攻机器学习的程序猿的年薪百万,AI 更是火得不得了😏，提起这些基本都是 Python 、Java、Go、甚至 JavaScript 都有就是没有我们 PHP 什么事😒，这我就不服我了啊。毕竟  PHP 是世界上最好的语言😆  虽然 PHP 的生态导致无法落地机器学习，但还是可以做一些简单的数据分析工作的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP 实现机器学习挖掘用户的购物习惯">
+<meta property="og:url" content="https://www.zxdstyle.cn/2020/03/13/php-ml/index.html">
+<meta property="og:site_name" content="好记性不如烂笔头 - 不折腾会死星人">
+<meta property="og:description" content="开场白 经常听说某某某专攻机器学习的程序猿的年薪百万,AI 更是火得不得了😏，提起这些基本都是 Python 、Java、Go、甚至 JavaScript 都有就是没有我们 PHP 什么事😒，这我就不服我了啊。毕竟  PHP 是世界上最好的语言😆  虽然 PHP 的生态导致无法落地机器学习，但还是可以做一些简单的数据分析工作的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-12T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-02T00:34:05.215Z">
+<meta property="article:author" content="zxdstyle">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="PHP">
+<meta name="twitter:card" content="summary"><title>PHP 实现机器学习挖掘用户的购物习惯 | 好记性不如烂笔头 - 不折腾会死星人</title><link ref="canonical" href="https://www.zxdstyle.cn/2020/03/13/php-ml/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: undefined,
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"carbon","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: true,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">PHP 实现机器学习挖掘用户的购物习惯</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2020-03-13</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-03-02</span></span></div></header><div class="post-body"><h1 id="开场白"><a class="markdownIt-Anchor" href="#开场白"></a> 开场白</h1>
+<p>经常听说某某某专攻机器学习的程序猿的年薪百万,AI 更是火得不得了😏，提起这些基本都是 Python 、Java、Go、甚至 JavaScript 都有就是没有我们 PHP 什么事😒，这我就不服我了啊。毕竟</p>
+<blockquote>
+<p>PHP 是世界上最好的语言😆</p>
+</blockquote>
+<p>虽然 PHP 的生态导致无法落地机器学习，但还是可以做一些简单的数据分析工作的。</p>
+<span id="more"></span>
+<h1 id="安装"><a class="markdownIt-Anchor" href="#安装"></a> 安装</h1>
+<p>这里推荐 <code>php-ml</code> 这个库，其中包含各种算法，交叉验证，神经网络，预处理，特征提取等等。需要 PHP 版本 <code>7.1</code> 以上， 速度还是可以的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer require php-ai/php-ml</span><br></pre></td></tr></table></figure>
+<h1 id="apriori-算法"><a class="markdownIt-Anchor" href="#apriori-算法"></a> Apriori 算法</h1>
+<blockquote>
+<p>Apriori算法是一种挖掘关联规则的频繁项集算法</p>
+</blockquote>
+<p>说简单点，Apriori 算法就是在已有的数据里根据出现的组合频次来总结一定的关联关系。</p>
+<p>这个详细算法不去深究，简单介绍一下他的两个参数。</p>
+<h2 id="支持度support"><a class="markdownIt-Anchor" href="#支持度support"></a> 支持度[Support]</h2>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mstyle scriptlevel="0" displaystyle="true"><mi>S</mi><mi>u</mi><mi>p</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">同</mi><mi mathvariant="normal">时</mi><mi mathvariant="normal">购</mi><mi mathvariant="normal">买</mi><mi mathvariant="normal">「</mi><mi mathvariant="normal">香</mi><mi mathvariant="normal">烟</mi><mi mathvariant="normal">、</mi><mi mathvariant="normal">打</mi><mi mathvariant="normal">火</mi><mi mathvariant="normal">机</mi><mi mathvariant="normal">」</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">人</mi><mi mathvariant="normal">数</mi></mrow><mrow><mi mathvariant="normal">总</mi><mi mathvariant="normal">人</mi><mi mathvariant="normal">数</mi></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle Support=\frac{同时购买「香烟、打火机」的人数}{总人数}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8777699999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord mathdefault">u</span><span class="mord mathdefault">p</span><span class="mord mathdefault">p</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">t</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.363em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.677em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">总</span><span class="mord cjk_fallback">人</span><span class="mord cjk_fallback">数</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">同</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">购</span><span class="mord cjk_fallback">买</span><span class="mord cjk_fallback">「</span><span class="mord cjk_fallback">香</span><span class="mord cjk_fallback">烟</span><span class="mord cjk_fallback">、</span><span class="mord cjk_fallback">打</span><span class="mord cjk_fallback">火</span><span class="mord cjk_fallback">机</span><span class="mord cjk_fallback">」</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">人</span><span class="mord cjk_fallback">数</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>很好理解，20个购买香烟的人里有19个人都买了打火机，那香烟和打火机肯定是有一定关联。</p>
+<h2 id="置信度confidence"><a class="markdownIt-Anchor" href="#置信度confidence"></a> 置信度[Confidence ]</h2>
+<p>置信度就是购买 a 的人同时购买 b 的概率。例如：</p>
+<p>（香烟 =&gt; 打火机）的置信度：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mstyle scriptlevel="0" displaystyle="true"><mi>c</mi><mi>o</mi><mi>n</mi><mi>f</mi><mi>i</mi><mi>d</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">同</mi><mi mathvariant="normal">时</mi><mi mathvariant="normal">购</mi><mi mathvariant="normal">买</mi><mi mathvariant="normal">香</mi><mi mathvariant="normal">烟</mi><mi mathvariant="normal">和</mi><mi mathvariant="normal">打</mi><mi mathvariant="normal">火</mi><mi mathvariant="normal">机</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">人</mi><mi mathvariant="normal">数</mi></mrow><mrow><mi mathvariant="normal">购</mi><mi mathvariant="normal">买</mi><mi mathvariant="normal">香</mi><mi mathvariant="normal">烟</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">人</mi><mi mathvariant="normal">数</mi></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle confidence =\frac{同时购买香烟和打火机的人数}{购买香烟的人数}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">i</span><span class="mord mathdefault">d</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">c</span><span class="mord mathdefault">e</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.363em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.677em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">购</span><span class="mord cjk_fallback">买</span><span class="mord cjk_fallback">香</span><span class="mord cjk_fallback">烟</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">人</span><span class="mord cjk_fallback">数</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">同</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">购</span><span class="mord cjk_fallback">买</span><span class="mord cjk_fallback">香</span><span class="mord cjk_fallback">烟</span><span class="mord cjk_fallback">和</span><span class="mord cjk_fallback">打</span><span class="mord cjk_fallback">火</span><span class="mord cjk_fallback">机</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">人</span><span class="mord cjk_fallback">数</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>（打火机 =&gt; 香烟）的置信度：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mstyle scriptlevel="0" displaystyle="true"><mi>c</mi><mi>o</mi><mi>n</mi><mi>f</mi><mi>i</mi><mi>d</mi><mi>e</mi><mi>n</mi><mi>c</mi><mi>e</mi><mo>=</mo><mfrac><mrow><mi mathvariant="normal">同</mi><mi mathvariant="normal">时</mi><mi mathvariant="normal">购</mi><mi mathvariant="normal">买</mi><mi mathvariant="normal">香</mi><mi mathvariant="normal">烟</mi><mi mathvariant="normal">和</mi><mi mathvariant="normal">打</mi><mi mathvariant="normal">火</mi><mi mathvariant="normal">机</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">人</mi><mi mathvariant="normal">数</mi></mrow><mrow><mi mathvariant="normal">购</mi><mi mathvariant="normal">买</mi><mi mathvariant="normal">打</mi><mi mathvariant="normal">火</mi><mi mathvariant="normal">机</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">人</mi><mi mathvariant="normal">数</mi></mrow></mfrac></mstyle></mrow><annotation encoding="application/x-tex">\displaystyle confidence =\frac{同时购买香烟和打火机的人数}{购买打火机的人数}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">c</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">i</span><span class="mord mathdefault">d</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord mathdefault">c</span><span class="mord mathdefault">e</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.363em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.677em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">购</span><span class="mord cjk_fallback">买</span><span class="mord cjk_fallback">打</span><span class="mord cjk_fallback">火</span><span class="mord cjk_fallback">机</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">人</span><span class="mord cjk_fallback">数</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord cjk_fallback">同</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">购</span><span class="mord cjk_fallback">买</span><span class="mord cjk_fallback">香</span><span class="mord cjk_fallback">烟</span><span class="mord cjk_fallback">和</span><span class="mord cjk_fallback">打</span><span class="mord cjk_fallback">火</span><span class="mord cjk_fallback">机</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">人</span><span class="mord cjk_fallback">数</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<h1 id="数据训练"><a class="markdownIt-Anchor" href="#数据训练"></a> 数据训练</h1>
+<p>理解这两个参数之后我们开始训练我们的机器，让他知道用户购买了香烟之后应该给用户推荐什么。</p>
+<p>首先准备好样本数据：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$samples</span> = [</span><br><span class="line"></span><br><span class="line">    [<span class="string">&#x27;香烟&#x27;</span>,<span class="string">&#x27;打火机&#x27;</span>],</span><br><span class="line"></span><br><span class="line">    [<span class="string">&#x27;香烟&#x27;</span>,<span class="string">&#x27;炸鸡&#x27;</span>,<span class="string">&#x27;啤酒&#x27;</span>,<span class="string">&#x27;鸡排&#x27;</span>],</span><br><span class="line"></span><br><span class="line">    [<span class="string">&#x27;打火机&#x27;</span>,<span class="string">&#x27;炸鸡&#x27;</span>,<span class="string">&#x27;啤酒&#x27;</span>,<span class="string">&#x27;可乐&#x27;</span>],</span><br><span class="line"></span><br><span class="line">    [<span class="string">&#x27;香烟&#x27;</span>,<span class="string">&#x27;打火机&#x27;</span>,<span class="string">&#x27;炸鸡&#x27;</span>,<span class="string">&#x27;啤酒&#x27;</span>],</span><br><span class="line"></span><br><span class="line">    [<span class="string">&#x27;香烟&#x27;</span>,<span class="string">&#x27;打火机&#x27;</span>,<span class="string">&#x27;炸鸡&#x27;</span>,<span class="string">&#x27;可乐&#x27;</span>]</span><br><span class="line"></span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+<p>根据上面的公式计算出支持度和可信度。然后开始训练：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> <span class="title">Phpml</span>\<span class="title">Association</span>\<span class="title">Apriori</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$associator</span>  =  <span class="keyword">new</span>  Apriori(<span class="variable">$support</span>  =  <span class="number">0.5</span>,  <span class="variable">$confidence</span>  =  <span class="number">0.5</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$associator</span>-&gt;train(<span class="variable">$samples</span>,  []);</span><br></pre></td></tr></table></figure>
+<p>速度还是可以的。训练完成之后我们可以获取生成的关联规则：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$associator</span>-&gt;getRules()</span><br></pre></td></tr></table></figure>
+<p>然后我们可以来预测一下买了打火机之后，用户可能会买什么：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$associator</span>-&gt;predict([<span class="string">&#x27;打火机&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">// [</span></span><br><span class="line"><span class="comment">//	0 =&gt; [ &#x27;香烟&#x27; ],</span></span><br><span class="line"><span class="comment">//	1 =&gt; [ &#x27;炸鸡&#x27;],</span></span><br><span class="line"><span class="comment">// ]</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>现在你知道用户买完避孕套该给他推荐啥了吧😏</p>
+</blockquote>
+<p>当然，如果你想保存训练好的模型，下次再使用的话，可以：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> <span class="title">Phpml</span>\<span class="title">ModelManager</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 保存训练好的模型</span></span><br><span class="line"><span class="variable">$filepath</span> = <span class="string">&#x27;/path/to/store/the/model&#x27;</span>; </span><br><span class="line"><span class="variable">$manager</span> = <span class="keyword">new</span> ModelManager();</span><br><span class="line"><span class="variable">$manager</span>-&gt;saveToFile(<span class="variable">$associator</span>, <span class="variable">$filepath</span>);</span><br></pre></td></tr></table></figure>
+<p>从文件读取训练好的模型：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="variable">$manager</span> = <span class="keyword">new</span> ModelManager();</span><br><span class="line"><span class="variable">$filepath</span> = <span class="string">&#x27;/path/to/store/the/model&#x27;</span>; </span><br><span class="line"><span class="variable">$restoredAssociator</span> = <span class="variable">$manager</span>-&gt;restoreFromFile(<span class="variable">$filepath</span>);</span><br><span class="line"><span class="variable">$restoredAssociator</span>-&gt;predict([<span class="string">&#x27;炸鸡&#x27;</span>]);</span><br></pre></td></tr></table></figure></div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://www.zxdstyle.cn">zxdstyle</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://www.zxdstyle.cn/2020/03/13/php-ml/">https://www.zxdstyle.cn/2020/03/13/php-ml/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/PHP/">PHP</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2020/04/01/laravel-orm-skill/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">Laravel ORM 中那些你不知道的骚操作</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2019/04/01/linux-supervisor-skill/"><span class="paginator-prev__text">生产环境中使用 supervisor 运行laravel队列任务</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="valine-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%80%E5%9C%BA%E7%99%BD"><span class="toc-number">1.</span> <span class="toc-text"> 开场白</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text"> 安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#apriori-%E7%AE%97%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text"> Apriori 算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%AF%E6%8C%81%E5%BA%A6support"><span class="toc-number">3.1.</span> <span class="toc-text"> 支持度[Support]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%AE%E4%BF%A1%E5%BA%A6confidence"><span class="toc-number">3.2.</span> <span class="toc-text"> 置信度[Confidence ]</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%AE%AD%E7%BB%83"><span class="toc-number">4.</span> <span class="toc-text"> 数据训练</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/avatar.jpeg" alt="avatar"></div><p class="sidebar-ov-author__text">zxdstyle</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">8</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">9</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">18</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>zxdstyle</span><span class="footer__devider">|</span><span><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/" >苏ICP备18041352号-1</a></span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.4.0</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.6.2</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (true) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"></div><script src="https://cdn.jsdelivr.net/npm/leancloud-storage@latest/dist/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script><script data-pjax="">function loadValine () {
+  var GUEST_INFO = ['nick', 'mail', 'link'];
+  var guest_info = 'nick,mail,link';
+
+  guest_info = guest_info.split(',').filter(function(item) {
+    return GUEST_INFO.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#valine-container',
+    appId: 'laxLplggHHCJK24Dj0s5bMfi-gzGzoHsz',
+    appKey: 'Jq8JGn03QEtrc6g2JWLwg7F7',
+    notify: true,
+    verify: true,
+    placeholder: '我觉得你可能想说点什么',
+    avatar: 'mp',
+    meta: guest_info,
+    pageSize: '10' || 10,
+    visitor: false,
+    recordIP: false,
+    lang: 'zh-cn' || 'zh-cn',
+    path: window.location.pathname
+  });
+}
+
+if (true) {
+  loadValine();
+} else {
+  window.addEventListener('DOMContentLoaded', loadValine, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script></body></html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="webrtc 通话流程        ClientA 和 ClientB 都链接上信令服务器（websocket） ClientA 获取本地视频流，并通过（websocket）发送会话描述信息（offer sdp） ClientB 收到信令（offer sdp）后回复（answer sdp） ClientA 接收到回复信令后开始链接，协商通信密钥，完成视频传输。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于webrtc实现点对点桌面分享">
+<meta property="og:url" content="https://www.zxdstyle.cn/2021/03/01/webrtc-share-desktop/index.html">
+<meta property="og:site_name" content="好记性不如烂笔头 - 不折腾会死星人">
+<meta property="og:description" content="webrtc 通话流程        ClientA 和 ClientB 都链接上信令服务器（websocket） ClientA 获取本地视频流，并通过（websocket）发送会话描述信息（offer sdp） ClientB 收到信令（offer sdp）后回复（answer sdp） ClientA 接收到回复信令后开始链接，协商通信密钥，完成视频传输。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-02-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-04T02:32:48.078Z">
+<meta property="article:author" content="zxdstyle">
+<meta property="article:tag" content="webrtc">
+<meta property="article:tag" content="Javacript">
+<meta name="twitter:card" content="summary"><title>基于webrtc实现点对点桌面分享 | 好记性不如烂笔头 - 不折腾会死星人</title><link ref="canonical" href="https://www.zxdstyle.cn/2021/03/01/webrtc-share-desktop/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: undefined,
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"carbon","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: true,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">基于webrtc实现点对点桌面分享</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-01</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-03-04</span></span></div></header><div class="post-body">
+        <h3 id="webrtc-通话流程"   >
+          <a href="#webrtc-通话流程" class="heading-link"><i class="fas fa-link"></i></a><a href="#webrtc-通话流程" class="headerlink" title="webrtc 通话流程"></a>webrtc 通话流程</h3>
+      <ol>
+<li>ClientA 和 ClientB 都链接上信令服务器（websocket）</li>
+<li>ClientA 获取本地视频流，并通过（websocket）发送会话描述信息（offer sdp）</li>
+<li>ClientB 收到信令（offer sdp）后回复（answer sdp）</li>
+<li>ClientA 接收到回复信令后开始链接，协商通信密钥，完成视频传输。</li>
+</ol>
+<span id="more"></span>
+
+<blockquote>
+<p>值得注意的是，webrtc 是客户端与客户端直接链接，不需要服务端参与。信令服务器仅在建立链接阶段交换数据。</p>
+</blockquote>
+
+        <h3 id="基础环境"   >
+          <a href="#基础环境" class="heading-link"><i class="fas fa-link"></i></a><a href="#基础环境" class="headerlink" title="基础环境"></a>基础环境</h3>
+      <p>首先搭建一个基础环境方便开发，我使用的是尤大最新开发的vite。</p>
+<figure class="highlight bash"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn create @vitejs/app webrtc --template vue &amp;&amp; <span class="built_in">cd</span> webrtc &amp;&amp; yarn &amp;&amp; yarn dev</span><br></pre></td></tr></table></div></figure>
+
+<p>安装webrtc浏览器兼容适配器：</p>
+<figure class="highlight bash"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add webrtc-adapter</span><br></pre></td></tr></table></div></figure>
+
+<p>一个小的demo就不引入不必要的扩展包了，自己动手实现一个简单的路由器。调整<code>App.vue</code> 文件：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">import</span> &#123; h, computed &#125; <span class="keyword">from</span> <span class="string">&quot;vue&quot;</span></span><br><span class="line"><span class="keyword">import</span> routes <span class="keyword">from</span> <span class="string">&quot;./routes&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> currentRoute = computed(<span class="function">() =&gt;</span> <span class="built_in">window</span>.location.pathname)</span><br><span class="line">    <span class="keyword">const</span> currentComponent = computed(<span class="function">() =&gt;</span> routes[currentRoute.value] || <span class="string">&quot;&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="function">() =&gt;</span> h(currentComponent.value)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br></pre></td></tr></table></div></figure>
+
+<p>新建 <code>src/routes.js</code> 文件：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Home <span class="keyword">from</span> <span class="string">&quot;./page/Server.vue&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> Client <span class="keyword">from</span> <span class="string">&quot;./page/Client.vue&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    <span class="string">&#x27;/&#x27;</span>: Home,</span><br><span class="line">    <span class="string">&#x27;/client&#x27;</span>: Client</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+
+
+<p>这样就可以分开编写客户端和服务端代码了。由于这只是个简单的 demo ，所以我这样使用，生成环境开发还是建议大家使用 <code>vue-router</code>。</p>
+
+        <h3 id="正文"   >
+          <a href="#正文" class="heading-link"><i class="fas fa-link"></i></a><a href="#正文" class="headerlink" title="正文"></a>正文</h3>
+      <p>首先创建 <code>src/page/Server.vue</code>组件,引入 <code>webrtc</code>适配器：</p>
+<figure class="highlight html"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;server&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">video</span> <span class="attr">id</span>=<span class="string">&quot;localVideo&quot;</span> <span class="attr">autoplay</span> <span class="attr">playsinline</span> <span class="attr">muted</span>&gt;</span><span class="tag">&lt;/<span class="name">video</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">import</span> <span class="string">&quot;webrtc-adapter&quot;</span></span></span><br><span class="line"><span class="javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line"><span class="javascript">  name: <span class="string">&quot;Server&quot;</span></span></span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span> <span class="attr">scoped</span>&gt;</span></span><br><span class="line"><span class="css"><span class="selector-tag">video</span> &#123;</span></span><br><span class="line"><span class="css">  <span class="attribute">width</span>: <span class="number">80%</span>;</span></span><br><span class="line"><span class="css">  <span class="attribute">height</span>: <span class="number">80%</span>;</span></span><br><span class="line"><span class="css">  <span class="attribute">background</span>: <span class="number">#000</span>;</span></span><br><span class="line"><span class="css">  <span class="attribute">position</span>: absolute;</span></span><br><span class="line"><span class="css">  <span class="attribute">left</span>: <span class="number">0</span>;<span class="attribute">right</span>: <span class="number">0</span>;</span></span><br><span class="line"><span class="css">  <span class="attribute">top</span>: <span class="number">0</span>;<span class="attribute">bottom</span>: <span class="number">0</span>;</span></span><br><span class="line"><span class="css">  <span class="attribute">margin</span>: auto;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+
+
+
+        <h4 id="1-获取本地视频流"   >
+          <a href="#1-获取本地视频流" class="heading-link"><i class="fas fa-link"></i></a><a href="#1-获取本地视频流" class="headerlink" title="1. 获取本地视频流"></a>1. 获取本地视频流</h4>
+      <p>这一步既可以录制屏幕内容也可以读取用户摄像头。</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">&quot;server&quot;</span>&gt;</span><br><span class="line">    &lt;video id=<span class="string">&quot;localVideo&quot;</span> autoplay playsinline muted&gt;&lt;/video&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;webrtc-adapter&quot;</span></span><br><span class="line"><span class="keyword">import</span> &#123; onMounted &#125; <span class="keyword">from</span> <span class="string">&quot;vue&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  name: <span class="string">&quot;Home&quot;</span>,</span><br><span class="line">  <span class="function"><span class="title">setup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">     <span class="keyword">const</span> startLive = <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">       <span class="keyword">const</span> localVideo = <span class="built_in">document</span>.getElementById(<span class="string">&quot;localVideo&quot;</span>)</span><br><span class="line">       <span class="keyword">let</span> stream = <span class="keyword">await</span> navigator.mediaDevices.getDisplayMedia(&#123; <span class="attr">video</span>: <span class="literal">true</span>, <span class="attr">audio</span>: <span class="literal">true</span> &#125;)</span><br><span class="line">       localVideo.srcObject = stream</span><br><span class="line">     &#125;</span><br><span class="line">     </span><br><span class="line">     onMounted(<span class="function">() =&gt;</span> startLive())</span><br><span class="line"></span><br><span class="line">     <span class="keyword">return</span> &#123;  &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></div></figure>
+
+<blockquote>
+<p>这里需要注意的是一定要在dom节点加载完毕之后再执行，否则会获取不到video节点</p>
+</blockquote>
+
+        <h4 id="2-信令服务器"   >
+          <a href="#2-信令服务器" class="heading-link"><i class="fas fa-link"></i></a><a href="#2-信令服务器" class="headerlink" title="2. 信令服务器"></a>2. 信令服务器</h4>
+      <p>想要与客户端建立链接，必须有信令服务器端介入，帮助客户端之间进行通讯。其实信令服务器原理很简单，不用做任何处理（业务逻辑除外），只需要把客户端发送的数据原样转发给目标客户端即可。我这里采用 GoLang 实现：</p>
+<figure class="highlight go"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;github.com/gogf/gf/frame/g&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/gogf/gf/net/ghttp&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/gogf/gf/os/glog&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	Server *ghttp.WebSocket</span><br><span class="line">	Client *ghttp.WebSocket</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	s := g.Server()</span><br><span class="line"></span><br><span class="line">	s.BindHandler(<span class="string">&quot;/server&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(r *ghttp.Request)</span></span> &#123;</span><br><span class="line">		ws, err := r.WebSocket()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			glog.Error(err)</span><br><span class="line">			r.Exit()</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		Server = ws</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			msgType, msg, err := ws.ReadMessage()</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> err = Client.WriteMessage(msgType, msg); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	s.BindHandler(<span class="string">&quot;/client&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(r *ghttp.Request)</span></span> &#123;</span><br><span class="line">		ws, err := r.WebSocket()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			glog.Error(err)</span><br><span class="line">			r.Exit()</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		Client = ws</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			msgType, msg, err := ws.ReadMessage()</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> err = Server.WriteMessage(msgType, msg); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	s.SetPort(<span class="number">8199</span>)</span><br><span class="line">	s.Run()</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></div></figure>
+
+
+
+
+        <h4 id="3-建立链接"   >
+          <a href="#3-建立链接" class="heading-link"><i class="fas fa-link"></i></a><a href="#3-建立链接" class="headerlink" title="3. 建立链接"></a>3. 建立链接</h4>
+      <p>链接信令服务器并且创建 PeerConnection 实例 (参数为null，忽略 iceserver，仅局域网下通讯)；</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> ws = <span class="keyword">new</span> WebSocket(<span class="string">&quot;ws://127.0.0.1:8199/server&quot;</span>)</span><br><span class="line"><span class="keyword">let</span> peer = <span class="keyword">new</span> RTCPeerConnection(<span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将媒体轨道添加到轨道集</span></span><br><span class="line">stream.getTracks().forEach(<span class="function"><span class="params">track</span> =&gt;</span> &#123;</span><br><span class="line">  peer.addTrack(track, stream)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></div></figure>
+
+
+
+<p>然后通过websocket发送会话描述信息（offer sdp）：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> offer = <span class="keyword">await</span> peer.createOffer()</span><br><span class="line"><span class="keyword">await</span> peer.setLocalDescription(offer)</span><br><span class="line">ws.send(<span class="built_in">JSON</span>.stringify(offer))</span><br></pre></td></tr></table></div></figure>
+
+
+
+
+        <h4 id="4-客户端接收"   >
+          <a href="#4-客户端接收" class="heading-link"><i class="fas fa-link"></i></a><a href="#4-客户端接收" class="headerlink" title="4. 客户端接收"></a>4. 客户端接收</h4>
+      <p>客户端同样链接信令服务器并创建PeerConnection实例。</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> ws = <span class="keyword">new</span> WebSocket(<span class="string">&quot;ws://127.0.0.1:8199/client&quot;</span>)</span><br><span class="line"><span class="keyword">let</span> peer = <span class="keyword">new</span> RTCPeerConnection(<span class="literal">null</span>)</span><br></pre></td></tr></table></div></figure>
+
+<p>监听信令服务器消息：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ws.onmessage = <span class="function"><span class="params">event</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; type, sdp, iceCandidate &#125; = <span class="built_in">JSON</span>.parse(e.data)</span><br><span class="line">  <span class="keyword">if</span> (type === <span class="string">&quot;offer&quot;</span>) &#123;</span><br><span class="line">    answer(<span class="keyword">new</span> RTCSessionDescription(&#123; type, sdp &#125;))</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="string">&quot;offer_ice&quot;</span>) &#123;</span><br><span class="line">    peer.addIceCandidate(iceCandidate)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+<p>收到服务器链接请求后，需要回复消息：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> answer = <span class="keyword">async</span> sdp =&gt; &#123;</span><br><span class="line">  <span class="keyword">await</span> peer.setRemoteDescription(sdp)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> answer = <span class="keyword">await</span> peer.createAnswer()</span><br><span class="line"></span><br><span class="line">  ws.send(<span class="built_in">JSON</span>.stringify(answer))</span><br><span class="line"></span><br><span class="line">  <span class="keyword">await</span> peer.setLocalDescription(answer) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+
+
+
+        <h4 id="5-服务端监听响应"   >
+          <a href="#5-服务端监听响应" class="heading-link"><i class="fas fa-link"></i></a><a href="#5-服务端监听响应" class="headerlink" title="5. 服务端监听响应"></a>5. 服务端监听响应</h4>
+      <p>客户端收到链接请求并回复，服务端同时也要监听客户端的回复：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ws.onmessage = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; type, sdp, iceCandidate &#125; = <span class="built_in">JSON</span>.parse(e.data)</span><br><span class="line">  <span class="keyword">if</span> (type === <span class="string">&quot;answer&quot;</span>) &#123;</span><br><span class="line">    peer.setRemoteDescription(<span class="keyword">new</span> RTCSessionDescription(&#123; type, sdp &#125;))</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (type === <span class="string">&quot;answer_ice&quot;</span>) &#123;</span><br><span class="line">    peer.addIceCandidate(iceCandidate)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+
+
+
+        <h4 id="6-获取远程视频流"   >
+          <a href="#6-获取远程视频流" class="heading-link"><i class="fas fa-link"></i></a><a href="#6-获取远程视频流" class="headerlink" title="6. 获取远程视频流"></a>6. 获取远程视频流</h4>
+      <p>当调用 <code>setLocalDescription</code> 之后，RTC 链接就开始搜集候选人，而我们只需要监听事件，通过信令服务器传递候选人信息即可。</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 服务端</span></span><br><span class="line">peer.onicecandidate = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (e.candidate) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;搜集并发送候选人&quot;</span>)</span><br><span class="line">    ws.send(</span><br><span class="line">      <span class="built_in">JSON</span>.stringify(&#123;</span><br><span class="line">        type: <span class="string">`offer_ice`</span>,</span><br><span class="line">        iceCandidate: e.candidate,</span><br><span class="line">      &#125;)</span><br><span class="line">    )</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;候选人收集完成！&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端</span></span><br><span class="line">peer.onicecandidate = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (e.candidate) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;搜集并发送候选人&quot;</span>)</span><br><span class="line">    ws.send(</span><br><span class="line">      <span class="built_in">JSON</span>.stringify(&#123;</span><br><span class="line">        type: <span class="string">`answer_ice`</span>,</span><br><span class="line">        iceCandidate: e.candidate,</span><br><span class="line">      &#125;)</span><br><span class="line">    )</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;候选人收集完成！&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+<p>  候选人搜集完成之后，服务端和客户端就正式勾搭上了，开始通信协商密钥，建立一条最优的链接方式。这个时候只需要监听 <code>ontrack</code> 事件获取视频流即可：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">peer.ontrack = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (e &amp;&amp; e.streams) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&quot;收到对方音频/视频流数据...&quot;</span>)</span><br><span class="line">    <span class="keyword">let</span> localVideo = <span class="built_in">document</span>.getElementById(<span class="string">&quot;localVideo&quot;</span>)</span><br><span class="line">    localVideo.srcObject = e.streams[<span class="number">0</span>]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+
+
+
+        <h3 id="结语"   >
+          <a href="#结语" class="heading-link"><i class="fas fa-link"></i></a><a href="#结语" class="headerlink" title="结语"></a>结语</h3>
+      <p>RTCPeerConnection 链接是双向的，这里我为了演示方便，仅做了单向视频传输，强行区分了服务端与客户端。客户端收到链接请求的同时也可以获取本地视频流传递到服务端，形成双向视频传输。同时为了方便演示信令服务器也是最简单的方式实现，客户端比需先链接才能进行通讯。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://www.zxdstyle.cn">zxdstyle</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://www.zxdstyle.cn/2021/03/01/webrtc-share-desktop/">https://www.zxdstyle.cn/2021/03/01/webrtc-share-desktop/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/webrtc/">webrtc</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/Javacript/">Javacript</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2020/06/01/laravel-vue-tailwindcss-sass/"><span class="paginator-prev__text">Laravel8配置vue3+tailwindcss+sass</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="valine-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#webrtc-%E9%80%9A%E8%AF%9D%E6%B5%81%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">
+          webrtc 通话流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83"><span class="toc-number">2.</span> <span class="toc-text">
+          基础环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AD%A3%E6%96%87"><span class="toc-number">3.</span> <span class="toc-text">
+          正文</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%8E%B7%E5%8F%96%E6%9C%AC%E5%9C%B0%E8%A7%86%E9%A2%91%E6%B5%81"><span class="toc-number">3.1.</span> <span class="toc-text">
+          1. 获取本地视频流</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BF%A1%E4%BB%A4%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.2.</span> <span class="toc-text">
+          2. 信令服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%BB%BA%E7%AB%8B%E9%93%BE%E6%8E%A5"><span class="toc-number">3.3.</span> <span class="toc-text">
+          3. 建立链接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%8E%A5%E6%94%B6"><span class="toc-number">3.4.</span> <span class="toc-text">
+          4. 客户端接收</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9B%91%E5%90%AC%E5%93%8D%E5%BA%94"><span class="toc-number">3.5.</span> <span class="toc-text">
+          5. 服务端监听响应</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E8%8E%B7%E5%8F%96%E8%BF%9C%E7%A8%8B%E8%A7%86%E9%A2%91%E6%B5%81"><span class="toc-number">3.6.</span> <span class="toc-text">
+          6. 获取远程视频流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AF%AD"><span class="toc-number">4.</span> <span class="toc-text">
+          结语</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/avatar.jpeg" alt="avatar"></div><p class="sidebar-ov-author__text">zxdstyle</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">8</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">9</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">18</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>zxdstyle</span><span class="footer__devider">|</span><span><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/" >苏ICP备18041352号-1</a></span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.4.0</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.6.2</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (true) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"></div><script src="https://cdn.jsdelivr.net/npm/leancloud-storage@latest/dist/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script><script data-pjax="">function loadValine () {
+  var GUEST_INFO = ['nick', 'mail', 'link'];
+  var guest_info = 'nick,mail,link';
+
+  guest_info = guest_info.split(',').filter(function(item) {
+    return GUEST_INFO.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#valine-container',
+    appId: 'laxLplggHHCJK24Dj0s5bMfi-gzGzoHsz',
+    appKey: 'Jq8JGn03QEtrc6g2JWLwg7F7',
+    notify: true,
+    verify: true,
+    placeholder: '我觉得你可能想说点什么',
+    avatar: 'mp',
+    meta: guest_info,
+    pageSize: '10' || 10,
+    visitor: false,
+    recordIP: false,
+    lang: 'zh-cn' || 'zh-cn',
+    path: window.location.pathname
+  });
+}
+
+if (true) {
+  loadValine();
+} else {
+  window.addEventListener('DOMContentLoaded', loadValine, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script></body></html>

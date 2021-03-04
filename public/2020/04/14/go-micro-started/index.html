@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="go-micro 简单demo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GoLang 微服务 go-micro 之启蒙篇">
+<meta property="og:url" content="https://www.zxdstyle.cn/2020/04/14/go-micro-started/index.html">
+<meta property="og:site_name" content="好记性不如烂笔头 - 不折腾会死星人">
+<meta property="og:description" content="go-micro 简单demo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.learnku.com/uploads/images/202004/13/39723/eO9PKVErma.png!large">
+<meta property="article:published_time" content="2020-04-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-02T00:34:05.214Z">
+<meta property="article:author" content="zxdstyle">
+<meta property="article:tag" content="微服务">
+<meta property="article:tag" content="服务注册">
+<meta property="article:tag" content="GoLang">
+<meta property="article:tag" content="Go Micro">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.learnku.com/uploads/images/202004/13/39723/eO9PKVErma.png!large"><title>GoLang 微服务 go-micro 之启蒙篇 | 好记性不如烂笔头 - 不折腾会死星人</title><link ref="canonical" href="https://www.zxdstyle.cn/2020/04/14/go-micro-started/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: undefined,
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"carbon","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: true,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">GoLang 微服务 go-micro 之启蒙篇</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2020-04-14</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-03-02</span></span></div></header><div class="post-body">
+        <h1 id="Get-Started"   >
+          <a href="#Get-Started" class="heading-link"><i class="fas fa-link"></i></a><a href="#Get-Started" class="headerlink" title="Get Started"></a>Get Started</h1>
+      <p>上来直接一把梭，上代码：</p>
+<figure class="highlight go"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 直接引入我们今天的主角</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/micro/go-micro&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 创建一个新的服务</span></span><br><span class="line">	service := micro.NewService()</span><br><span class="line">	<span class="comment">// 初始化</span></span><br><span class="line">	service.Init()</span><br><span class="line">	<span class="comment">// 启动服务</span></span><br><span class="line">	<span class="keyword">if</span> err := service.Run(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+<span id="more"></span>
+
+<p>然后执行 <code>go run main.go</code>启动服务，不出意外的话你会看到一下输出（出意外我也没辙:joy:）</p>
+<figure class="highlight go"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2020</span><span class="number">-04</span><span class="number">-13</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">47.658403</span> I | Transport [http] Listening on [::]:<span class="number">55351</span></span><br><span class="line"><span class="number">2020</span><span class="number">-04</span><span class="number">-13</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">47.658510</span> I | Broker [http] Connected to [::]:<span class="number">55352</span></span><br><span class="line"><span class="number">2020</span><span class="number">-04</span><span class="number">-13</span> <span class="number">11</span>:<span class="number">18</span>:<span class="number">47.658929</span> I | Registry [mdns] Registering node: <span class="keyword">go</span>.micro.server<span class="number">-7</span>b38a9bc-a20b<span class="number">-4</span>c89-b5b7-fd40cafe22a2</span><br></pre></td></tr></table></div></figure>
+<p>看到这些输出意味着服务正常启动，并且还将服务注册到 mdns 中。这个时候有的人会问了， mdns 是个什么东西。其实 mdns 就是传说中的服务注册中心啦，接下来就讲讲服务注册中心到底是个啥。</p>
+
+        <h1 id="服务注册中心"   >
+          <a href="#服务注册中心" class="heading-link"><i class="fas fa-link"></i></a><a href="#服务注册中心" class="headerlink" title="服务注册中心"></a>服务注册中心</h1>
+      <p>服务注册中心到底是个啥？举个栗子，一个服务就相当于一个手机号码，你可能记得你家人的手机号码，但是你的朋友老板客户的手机号码你记得么？有的人还有可能有多个手机号码，所以你的手机里有一个通讯录。</p>
+<p>微服务也是，一个两个服务你可以直接告诉调用方有这么个服务，直接调用就好了。那如果有几百几千个服务呢？所以微服务注册中心应运而生。</p>
+<p>注册中心就相当于通讯录，存储了服务与对应服务地址的映射关系。通常一个服务器可能部署多个节点进行负载均衡。比如说现在有一个获取最新文章的接口，因为请求量比较大，我们将这个接口微服务化，并且部署多个节点。那这个时候问题来了,比如说我现在部署了三个节点,分别是<code>127.0.0.1:8001</code>、<code>127.0.0.1:8002</code>、<code>127.0.0.1:8003</code>，请求任意一个节点都可以正常获取数据。</p>
+<ol>
+<li>那客户端怎么知道该请求哪个节点你呢？</li>
+<li>如果某个节点出问题不可用了，该怎么让客户端自动切换到可用节点呢？</li>
+<li>怎么让请求合理的分配到各个节点呢？</li>
+</ol>
+<p>这些问题都可以用服务注册中心来解决，下面举个例子来一一说明：</p>
+
+        <h1 id="安装-etcd"   >
+          <a href="#安装-etcd" class="heading-link"><i class="fas fa-link"></i></a><a href="#安装-etcd" class="headerlink" title="安装 etcd"></a>安装 etcd</h1>
+      <p>上文启动服务时，go micro 默认使用了 mdns 作为注册中心。我们这里使用 etcd 作为注册中心。</p>
+<p>Mac 可以使用 <code>brew install etcd</code> 安装，用 window 的同学可以自行去 <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/releases" >github</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span> 下载安装。</p>
+<p>安装完成后直接执行 <code>etcd</code> 启动即可。</p>
+<p>然后安装一下 go micro 提供的命令行工具 micro:</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com&#x2F;micro&#x2F;micro&#x2F;v2</span><br></pre></td></tr></table></div></figure>
+
+<p>执行 <code>MICRO_REGISTRY=etcd micro web</code> 即可启动 web 界面，访问<code>127.0.0.1:8082</code> 就可以查看到 etcd 中注册了哪些服务。</p>
+
+        <h1 id="业务接口"   >
+          <a href="#业务接口" class="heading-link"><i class="fas fa-link"></i></a><a href="#业务接口" class="headerlink" title="业务接口"></a>业务接口</h1>
+      <p>上文开启的服务中未实现任何接口，为了方便演示，我们小小改造一下，先使用常用的 gin 框架编写一个 HTTP 接口，并整合到 micro 里。</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">import (</span><br><span class="line">	&quot;github.com&#x2F;gin-gonic&#x2F;gin&quot;</span><br><span class="line">	&quot;github.com&#x2F;micro&#x2F;go-micro&#x2F;registry&quot;</span><br><span class="line">	&quot;github.com&#x2F;micro&#x2F;go-micro&#x2F;registry&#x2F;etcd&quot;</span><br><span class="line">	&quot;github.com&#x2F;micro&#x2F;go-micro&#x2F;web&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">	&#x2F;&#x2F; 指定注册中心</span><br><span class="line">	etcdReg :&#x3D; etcd.NewRegistry(registry.Addrs(&quot;127.0.0.1:2379&quot;))</span><br><span class="line"></span><br><span class="line">	router :&#x3D; gin.Default()</span><br><span class="line"></span><br><span class="line">	router.Handle(&quot;GET&quot;, &quot;&#x2F;hello&quot;, func(context *gin.Context) &#123;</span><br><span class="line">		context.String(&quot;hello world&quot;)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	server :&#x3D; web.NewService(</span><br><span class="line">		&#x2F;&#x2F; 为我们的服务取个名字 </span><br><span class="line">		web.Name(&quot;product&quot;),</span><br><span class="line">		&#x2F;&#x2F; 指定 handler</span><br><span class="line">		web.Handler(router),</span><br><span class="line">		&#x2F;&#x2F; 将服务注册到 etcd</span><br><span class="line">		web.Registry(etcdReg),</span><br><span class="line">	)</span><br><span class="line"></span><br><span class="line">	server.Init()</span><br><span class="line"></span><br><span class="line">	server.Run()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+<p>然后执行 <code>go run main.go</code> 启动服务：</p>
+<p>
+        <img   class="lazyload lazyload-gif"
+          src="/images/loading.svg" data-src="https://cdn.learnku.com/uploads/images/202004/13/39723/eO9PKVErma.png!large"  alt="GoLang 微服务 go-micro 之启蒙篇">
+      </p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://www.zxdstyle.cn">zxdstyle</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://www.zxdstyle.cn/2020/04/14/go-micro-started/">https://www.zxdstyle.cn/2020/04/14/go-micro-started/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/">微服务</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C/">服务注册</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/GoLang/">GoLang</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/Go-Micro/">Go Micro</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2020/05/13/vue-cli-less/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">Vue Cli 项目全局使用 less 变量</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2020/04/05/laravel-router-to-postman/"><span class="paginator-prev__text">【好用的扩展包】Laravel 路由生成 postman 接口集合</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="valine-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Get-Started"><span class="toc-number">1.</span> <span class="toc-text">
+          Get Started</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83"><span class="toc-number">2.</span> <span class="toc-text">
+          服务注册中心</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-etcd"><span class="toc-number">3.</span> <span class="toc-text">
+          安装 etcd</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E6%8E%A5%E5%8F%A3"><span class="toc-number">4.</span> <span class="toc-text">
+          业务接口</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/avatar.jpeg" alt="avatar"></div><p class="sidebar-ov-author__text">zxdstyle</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">8</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">9</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">18</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>zxdstyle</span><span class="footer__devider">|</span><span><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/" >苏ICP备18041352号-1</a></span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.4.0</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.6.2</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (true) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"></div><script src="https://cdn.jsdelivr.net/npm/leancloud-storage@latest/dist/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script><script data-pjax="">function loadValine () {
+  var GUEST_INFO = ['nick', 'mail', 'link'];
+  var guest_info = 'nick,mail,link';
+
+  guest_info = guest_info.split(',').filter(function(item) {
+    return GUEST_INFO.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#valine-container',
+    appId: 'laxLplggHHCJK24Dj0s5bMfi-gzGzoHsz',
+    appKey: 'Jq8JGn03QEtrc6g2JWLwg7F7',
+    notify: true,
+    verify: true,
+    placeholder: '我觉得你可能想说点什么',
+    avatar: 'mp',
+    meta: guest_info,
+    pageSize: '10' || 10,
+    visitor: false,
+    recordIP: false,
+    lang: 'zh-cn' || 'zh-cn',
+    path: window.location.pathname
+  });
+}
+
+if (true) {
+  loadValine();
+} else {
+  window.addEventListener('DOMContentLoaded', loadValine, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script></body></html>

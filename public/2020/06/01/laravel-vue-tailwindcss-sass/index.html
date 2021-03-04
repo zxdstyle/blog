@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="安装 Laravel8 首先安装Laravel8，并且安装前端依赖。 123composer create-project --prefer-dist laravel&#x2F;laravel democd demoyarn （或 npm install）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Laravel8配置vue3+tailwindcss+sass">
+<meta property="og:url" content="https://www.zxdstyle.cn/2020/06/01/laravel-vue-tailwindcss-sass/index.html">
+<meta property="og:site_name" content="好记性不如烂笔头 - 不折腾会死星人">
+<meta property="og:description" content="安装 Laravel8 首先安装Laravel8，并且安装前端依赖。 123composer create-project --prefer-dist laravel&#x2F;laravel democd demoyarn （或 npm install）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-05-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-02T00:34:05.214Z">
+<meta property="article:author" content="zxdstyle">
+<meta property="article:tag" content="Laravel">
+<meta property="article:tag" content="Vue3">
+<meta property="article:tag" content="Sass">
+<meta name="twitter:card" content="summary"><title>Laravel8配置vue3+tailwindcss+sass | 好记性不如烂笔头 - 不折腾会死星人</title><link ref="canonical" href="https://www.zxdstyle.cn/2020/06/01/laravel-vue-tailwindcss-sass/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: undefined,
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"carbon","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: true,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">Laravel8配置vue3+tailwindcss+sass</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2020-06-01</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-03-02</span></span></div></header><div class="post-body"><h3 id="安装-laravel8"><a class="markdownIt-Anchor" href="#安装-laravel8"></a> 安装 Laravel8</h3>
+<p>首先安装Laravel8，并且安装前端依赖。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">composer create-project --prefer-dist laravel/laravel demo</span><br><span class="line">cd demo</span><br><span class="line">yarn （或 npm install）</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<h3 id="集成-tailwindcss-和-scss"><a class="markdownIt-Anchor" href="#集成-tailwindcss-和-scss"></a> 集成 tailwindcss 和 scss</h3>
+<p>安装相关依赖:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add tailwindcss sass-loader sass --dev</span><br></pre></td></tr></table></figure>
+<p>在 <code>reourcces/css/app.scss</code> 添加：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@tailwind</span> base;</span><br><span class="line"><span class="keyword">@tailwind</span> components;</span><br><span class="line"><span class="keyword">@tailwind</span> utilities;</span><br></pre></td></tr></table></figure>
+<p>执行 <code>npx tailwind init</code> 命令生成 tailwind 配置文件。</p>
+<p>调整 <code>webpack.mix.js</code> 文件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> mix = <span class="built_in">require</span>(<span class="string">&#x27;laravel-mix&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> tailwindcss = <span class="built_in">require</span>(<span class="string">&#x27;tailwindcss&#x27;</span>);</span><br><span class="line">mix.js(<span class="string">&#x27;resources/js/app.js&#x27;</span>, <span class="string">&#x27;public/js&#x27;</span>)</span><br><span class="line">   .sass(<span class="string">&#x27;resources/css/app.scss&#x27;</span>, <span class="string">&#x27;public/css&#x27;</span>)</span><br><span class="line">   .options(&#123; </span><br><span class="line">       processCssUrls: <span class="literal">false</span>,</span><br><span class="line">       postCss: [tailwindcss(<span class="string">&#x27;./tailwind.config.js&#x27;</span>)]</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="集成vue3"><a class="markdownIt-Anchor" href="#集成vue3"></a> 集成vue3</h3>
+<p>安装vue-loader：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn add vue@next @vue/compiler-sfc vue-loader@^<span class="number">16.1</span><span class="number">.0</span> --dev</span><br></pre></td></tr></table></figure>
+<p>然后在 <code>webpack.mix.js</code> 中添加以下代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mix.vue();</span><br></pre></td></tr></table></figure>
+<p>新建测试组件 <code>resources/components/Test.vue</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">    &lt;h2&gt;test&lt;&#x2F;h2&gt;</span><br><span class="line">&lt;&#x2F;template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">export default &#123;</span><br><span class="line">    name: &quot;Test&quot;</span><br><span class="line">&#125;</span><br><span class="line">&lt;&#x2F;script&gt;</span><br><span class="line"></span><br><span class="line">&lt;style scoped&gt;&lt;&#x2F;style&gt;</span><br></pre></td></tr></table></figure>
+<p>调整<code>resources/js/app.js</code>:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>(<span class="string">&#x27;./bootstrap&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; createApp &#125; <span class="keyword">from</span> <span class="string">&#x27;vue&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> Test <span class="keyword">from</span> <span class="string">&quot;../components/Test&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = createApp(&#123;</span><br><span class="line">    components: &#123;Test&#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.mount(<span class="string">&quot;#app&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>到这一步，我的<code>package.json</code>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;private&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">&quot;scripts&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;dev&quot;</span>: <span class="string">&quot;npm run development&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;development&quot;</span>: <span class="string">&quot;mix&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;watch&quot;</span>: <span class="string">&quot;mix watch&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;watch-poll&quot;</span>: <span class="string">&quot;mix watch -- --watch-options-poll=1000&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;hot&quot;</span>: <span class="string">&quot;mix watch --hot&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;prod&quot;</span>: <span class="string">&quot;npm run production&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;production&quot;</span>: <span class="string">&quot;mix --production&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;devDependencies&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;@vue/compiler-sfc&quot;</span>: <span class="string">&quot;^3.0.6&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;axios&quot;</span>: <span class="string">&quot;^0.21&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;laravel-mix&quot;</span>: <span class="string">&quot;^6.0.6&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;lodash&quot;</span>: <span class="string">&quot;^4.17.19&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;postcss&quot;</span>: <span class="string">&quot;^8.1.14&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;sass&quot;</span>: <span class="string">&quot;^1.32.8&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;sass-loader&quot;</span>: <span class="string">&quot;^11.0.1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;vue-loader&quot;</span>: <span class="string">&quot;^16.1.0&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">&quot;dependencies&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;tailwindcss&quot;</span>: <span class="string">&quot;^2.0.3&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;vue&quot;</span>: <span class="string">&quot;^3.0.6&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="测试"><a class="markdownIt-Anchor" href="#测试"></a> 测试</h3>
+<p>调整 <code>welcome.blade.php</code> 文件:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">    &lt;head&gt;</span><br><span class="line">        &lt;meta charset=<span class="string">&quot;utf-8&quot;</span>&gt;</span><br><span class="line">        &lt;meta name=<span class="string">&quot;viewport&quot;</span> content=<span class="string">&quot;width=device-width, initial-scale=1&quot;</span>&gt;</span><br><span class="line">        &lt;title&gt;Laravel&lt;/title&gt;</span><br><span class="line">        &lt;link rel=<span class="string">&quot;stylesheet&quot;</span> href=<span class="string">&quot;&#123;&#123; mix(&quot;</span>css/app.css<span class="string">&quot;) &#125;&#125;&quot;</span>&gt;</span><br><span class="line">    &lt;/head&gt;</span><br><span class="line">    &lt;body&gt;</span><br><span class="line">        &lt;div id=<span class="string">&quot;app&quot;</span>&gt;</span><br><span class="line">            &lt;Test&gt;&lt;/Test&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line"></span><br><span class="line">        &lt;script src=<span class="string">&quot;&#123;&#123; mix(&quot;</span>js/app.js<span class="string">&quot;) &#125;&#125;&quot;</span>&gt;&lt;/script&gt;</span><br><span class="line">    &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以看到我们的 vue3 已经成功集成到 Laravel ！！！</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://www.zxdstyle.cn">zxdstyle</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://www.zxdstyle.cn/2020/06/01/laravel-vue-tailwindcss-sass/">https://www.zxdstyle.cn/2020/06/01/laravel-vue-tailwindcss-sass/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/Laravel/">Laravel</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/Vue3/">Vue3</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://www.zxdstyle.cn/tags/Sass/">Sass</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2021/03/01/webrtc-share-desktop/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">基于webrtc实现点对点桌面分享</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2020/05/13/vue-cli-less/"><span class="paginator-prev__text">Vue Cli 项目全局使用 less 变量</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="valine-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-laravel8"><span class="toc-number">1.</span> <span class="toc-text"> 安装 Laravel8</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E6%88%90-tailwindcss-%E5%92%8C-scss"><span class="toc-number">2.</span> <span class="toc-text"> 集成 tailwindcss 和 scss</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E6%88%90vue3"><span class="toc-number">3.</span> <span class="toc-text"> 集成vue3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">4.</span> <span class="toc-text"> 测试</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/avatar.jpeg" alt="avatar"></div><p class="sidebar-ov-author__text">zxdstyle</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">8</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">9</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">18</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>zxdstyle</span><span class="footer__devider">|</span><span><a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/" >苏ICP备18041352号-1</a></span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.4.0</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.6.2</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (true) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"></div><script src="https://cdn.jsdelivr.net/npm/leancloud-storage@latest/dist/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine@latest/dist/Valine.min.js"></script><script data-pjax="">function loadValine () {
+  var GUEST_INFO = ['nick', 'mail', 'link'];
+  var guest_info = 'nick,mail,link';
+
+  guest_info = guest_info.split(',').filter(function(item) {
+    return GUEST_INFO.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#valine-container',
+    appId: 'laxLplggHHCJK24Dj0s5bMfi-gzGzoHsz',
+    appKey: 'Jq8JGn03QEtrc6g2JWLwg7F7',
+    notify: true,
+    verify: true,
+    placeholder: '我觉得你可能想说点什么',
+    avatar: 'mp',
+    meta: guest_info,
+    pageSize: '10' || 10,
+    visitor: false,
+    recordIP: false,
+    lang: 'zh-cn' || 'zh-cn',
+    path: window.location.pathname
+  });
+}
+
+if (true) {
+  loadValine();
+} else {
+  window.addEventListener('DOMContentLoaded', loadValine, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script></body></html>
