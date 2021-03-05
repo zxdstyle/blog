@@ -212,7 +212,7 @@ footer:
     # Icon name in FontAwesome, see: https://fontawesome.com/icons
     name: fas fa-heart
     # Heartbeat animation.
-    animation: false
+    animation: true
     # (Please use "" to wrap the value)
     color: "#ff0000"
   # Hexo link
@@ -242,7 +242,7 @@ creative_commons:
   # For details, please see: https://creativecommons.org/share-your-work/licensing-types-examples/
   license: BY-NC-SA
   # Show the CC license in the sidebar.
-  sidebar: true
+  sidebar: false
   # Show the CC license at the post bottom.
   post: true
   # Optional values:
@@ -262,6 +262,7 @@ back2top:
     rotate: -45deg
     # (Please use "" to wrap the value)
     color: "#49b1f5"
+    animation: true
     # Color when the mouse hovers it (Please use "" to wrap the value)
     hover_color: "#fc6423"
 
@@ -304,10 +305,9 @@ author:
 # If you can`t find a suitable icon, you can choose to display text by adding the `origin:` prefix.
 # e.g. `origin:sf`, so `sf` will be displayed.
 social:
-  github: https://github.com/ || fab fa-github
-  google: https://plus.google.com/ || fab fa-google
-  twitter: https://twitter.com/ || fab fa-twitter
-  youtube: https://youtube.com/ || fab fa-youtube
+  github: https://github.com/zxdstyle || fab fa-github
+  learnku: https://learnku.com/users/39723 || fab fa-laravel
+  email: mailto:zxdstyle@foxmail.com || far fa-envelope
   # segmentfault: https://segmentfault.com/ || origin:sf
   # weibo: https://weibo.com/ || fab fa-weibo
   # zhihu: https://www.zhihu.com/ || origin:知
@@ -316,7 +316,7 @@ social:
   # qq: yournumber || fab fa-qq
 
 social_setting:
-  enable: false
+  enable: true
   # Only show by icon.
   icon_only: true
 
