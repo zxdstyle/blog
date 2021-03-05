@@ -316,7 +316,7 @@ social:
   # qq: yournumber || fab fa-qq
 
 social_setting:
-  enable: true
+  enable: false
   # Only show by icon.
   icon_only: true
 
