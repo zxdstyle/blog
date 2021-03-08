@@ -341,3 +341,7 @@ peer.ontrack = e => {
 ### 结语
 
 RTCPeerConnection 链接是双向的，这里我为了演示方便，仅做了单向视频传输，强行区分了服务端与客户端。客户端收到链接请求的同时也可以获取本地视频流传递到服务端，形成双向视频传输。同时为了方便演示信令服务器也是最简单的方式实现，客户端比需先链接才能进行通讯。
+
+
+
+> 完整代码已上传 [https://github.com/zxdstyle/webrtc-demo](https://github.com/zxdstyle/webrtc-demo)
